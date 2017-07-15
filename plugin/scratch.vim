@@ -57,8 +57,9 @@ endif
 let loaded_scratch=1
 
 " Scratch buffer name
-let ScratchBufferName = "__Scratch__"
-
+if !exists("g:ScratchFileName")
+    let g:ScratchFileName = "~/scratch_file.txt"
+endif
 
 " Stolen from Steve Losh's Gundo source code:
 " https://github.com/sjl/gundo.vim/blob/master/plugin/gundo.vim#L405
@@ -73,7 +74,7 @@ endfunction"}}}
 
 " https://github.com/sjl/gundo.vim/blob/master/plugin/gundo.vim#L414
 function! s:ScratchIsVisible()"{{{
-    if bufwinnr(bufnr(g:ScratchBufferName)) != -1
+    if bufwinnr(bufnr(g:ScratchFileName)) != -1
         return 1
     else
         return 0
@@ -91,7 +92,8 @@ endfunction"}}}
 
 " https://github.com/sjl/gundo.vim/blob/master/plugin/gundo.vim#L585
 function! s:ScratchClose()"{{{
-    if s:ScratchGoToWindowForBufferName(g:ScratchBufferName)
+    if s:ScratchGoToWindowForBufferName(g:ScratchFileName)
+        execute ':w ' . g:ScratchFileName
         quit
     endif
 endfunction"}}}
@@ -109,17 +111,17 @@ function! s:ScratchBufferOpen(new_win,vertical_split)
     endif
 
     " Check whether the scratch buffer is already created
-    let scr_bufnum = bufnr(g:ScratchBufferName)
+    let scr_bufnum = bufnr(g:ScratchFileName)
     if scr_bufnum == -1
         " open a new scratch buffer
         if split_win
             if vertical_split
-                exe "vnew " . g:ScratchBufferName
+                exe "vnew " . g:ScratchFileName
             else
-                exe "new " . g:ScratchBufferName
+                exe "new " . g:ScratchFileName
             endif
         else
-            exe "edit " . g:ScratchBufferName
+            exe "edit " . g:ScratchFileName
         endif
     else
         " Scratch buffer is already created. Check whether it is open
@@ -145,17 +147,6 @@ function! s:ScratchBufferOpen(new_win,vertical_split)
         endif
     endif
 endfunction
-
-" ScratchMarkBuffer
-" Mark a buffer as scratch
-function! s:ScratchMarkBuffer()
-    setlocal buftype=nofile
-    setlocal bufhidden=hide
-    setlocal noswapfile
-    setlocal buflisted
-endfunction
-
-autocmd BufNewFile __Scratch__ call s:ScratchMarkBuffer()
 
 " Command to edit the scratch buffer in the current window
 command! -nargs=0 Scratch call s:ScratchBufferOpen(0,0)

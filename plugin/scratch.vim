@@ -61,6 +61,12 @@ if !exists("g:ScratchFileName")
     let g:ScratchFileName = "~/scratch_file.txt"
 endif
 
+" Handle symbolic links.
+" Without, the scratch buffer path, which holds the truth path, won't
+" match g:ScratchFileName and a new buffer will be created instead of using
+" the already open scratch buffer.
+let g:ScratchFileName = expand(g:ScratchFileName)
+
 " Stolen from Steve Losh's Gundo source code:
 " https://github.com/sjl/gundo.vim/blob/master/plugin/gundo.vim#L405
 function! s:ScratchGoToWindowForBufferName(name)"{{{
